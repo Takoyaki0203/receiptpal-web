@@ -79,7 +79,7 @@ export default function Login() {
             </div>
 
             <div className="form-wrapper">
-              <p className="subtext">Start your journey testing</p>
+              <p className="subtext">Start your journey</p>
               <h2 className='login-title'>Sign In to ReceiptPal</h2>
 
               {/* Email/Password form */}
