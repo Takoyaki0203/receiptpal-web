@@ -1,15 +1,15 @@
 {
-  "dev": {
+  "main": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-receiptpal-dev-d1bd2-authRole",
-      "UnauthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpal-dev-d1bd2-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpal-dev-d1bd2-authRole",
+      "AuthRoleName": "amplify-receiptpalweb-main-39296-authRole",
+      "UnauthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpalweb-main-39296-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpalweb-main-39296-authRole",
       "Region": "ap-southeast-2",
-      "DeploymentBucketName": "amplify-receiptpal-dev-d1bd2-deployment",
-      "UnauthRoleName": "amplify-receiptpal-dev-d1bd2-unauthRole",
-      "StackName": "amplify-receiptpal-dev-d1bd2",
-      "StackId": "arn:aws:cloudformation:ap-southeast-2:483853174822:stack/amplify-receiptpal-dev-d1bd2/a17a6f50-71cf-11f0-b4c3-064edf9960b7",
-      "AmplifyAppId": "d1cb6dzhc5jwdb"
+      "DeploymentBucketName": "amplify-receiptpalweb-main-39296-deployment",
+      "UnauthRoleName": "amplify-receiptpalweb-main-39296-unauthRole",
+      "StackName": "amplify-receiptpalweb-main-39296",
+      "StackId": "arn:aws:cloudformation:ap-southeast-2:483853174822:stack/amplify-receiptpalweb-main-39296/f0d4c0f0-785a-11f0-875c-0a9b82ad81e7",
+      "AmplifyAppId": "d3iynbxrksi5iq"
     },
     "categories": {
       "auth": {

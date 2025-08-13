@@ -1,0 +1,58 @@
+{
+  "providers": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-receiptpal-dev-d1bd2-authRole",
+      "UnauthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpal-dev-d1bd2-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::483853174822:role/amplify-receiptpal-dev-d1bd2-authRole",
+      "Region": "ap-southeast-2",
+      "DeploymentBucketName": "amplify-receiptpal-dev-d1bd2-deployment",
+      "UnauthRoleName": "amplify-receiptpal-dev-d1bd2-unauthRole",
+      "StackName": "amplify-receiptpal-dev-d1bd2",
+      "StackId": "arn:aws:cloudformation:ap-southeast-2:483853174822:stack/amplify-receiptpal-dev-d1bd2/a17a6f50-71cf-11f0-b4c3-064edf9960b7",
+      "AmplifyAppId": "d1cb6dzhc5jwdb"
+    }
+  },
+  "auth": {
+    "receiptpal22631e3a": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false,
+      "frontendAuthConfig": {
+        "socialProviders": [],
+        "usernameAttributes": [
+          "EMAIL"
+        ],
+        "signupAttributes": [
+          "EMAIL"
+        ],
+        "passwordProtectionSettings": {
+          "passwordPolicyMinLength": 8,
+          "passwordPolicyCharacters": []
+        },
+        "mfaConfiguration": "OFF",
+        "mfaTypes": [
+          "SMS"
+        ],
+        "verificationMechanisms": [
+          "EMAIL"
+        ]
+      },
+      "providerMetadata": {
+        "s3TemplateURL": "https://s3.amazonaws.com/amplify-receiptpal-dev-d1bd2-deployment/amplify-cfn-templates/auth/receiptpal22631e3a-cloudformation-template.json",
+        "logicalId": "authreceiptpal22631e3a"
+      },
+      "lastPushTimeStamp": "2025-08-05T07:45:51.467Z",
+      "output": {
+        "UserPoolId": "ap-southeast-2_qqhQJSepu",
+        "AppClientIDWeb": "13mrdbn66n3mn3cm54ua96nqnd",
+        "AppClientID": "5r68nclb77rsjd0m181k3dqart",
+        "IdentityPoolId": "ap-southeast-2:f3f1feea-afb9-4b7a-9b5c-a0aceab65981",
+        "UserPoolArn": "arn:aws:cognito-idp:ap-southeast-2:483853174822:userpool/ap-southeast-2_qqhQJSepu",
+        "IdentityPoolName": "receiptpal22631e3a_identitypool_22631e3a__dev",
+        "UserPoolName": "receiptpal22631e3a_userpool_22631e3a"
+      },
+      "lastPushDirHash": "ZZFnwCIPduycp4ELk2Nx7+yJ8RM="
+    }
+  }
+}
