@@ -9,6 +9,7 @@ import {
   getCurrentUser,
   fetchAuthSession
 } from 'aws-amplify/auth';
+import awsExports from '../aws-exports';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,8 @@ export default function Login() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
+    console.log('OAuth config at runtime:', awsExports.oauth);
+    
     (async () => {
       try {
         const user = await getCurrentUser(); // throws if not signed in
