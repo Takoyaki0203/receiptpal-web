@@ -8,16 +8,26 @@ const awsmobile = {
     "aws_user_pools_id": "ap-southeast-2_KzPUOnVKo",
     "aws_user_pools_web_client_id": "61rht0ncrjt546cc1hi3jp10sb",
     "oauth": {
-        domain: "receiptpal-auth-2.auth.ap-southeast-2.amazoncognito.com",
-        scope: ["openid","email","profile"],
-        redirectSignIn:  "https://main.d3iynbxrksi5iq.amplifyapp.com/upload",
-        redirectSignOut: "https://main.d3iynbxrksi5iq.amplifyapp.com/",
-        responseType: "code"
+        "domain": "receiptpal-auth-2-main.auth.ap-southeast-2.amazoncognito.com",
+        "scope": [
+            "phone",
+            "email",
+            "openid",
+            "profile",
+            "aws.cognito.signin.user.admin"
+        ],
+        "redirectSignIn": "https://main.d3iynbxrksi5iq.amplifyapp.com/upload/",
+        "redirectSignOut": "https://main.d3iynbxrksi5iq.amplifyapp.com/",
+        "responseType": "code"
     },
+    "federationTarget": "COGNITO_USER_AND_IDENTITY_POOLS",
     "aws_cognito_username_attributes": [
         "EMAIL"
     ],
-    "aws_cognito_social_providers": ["GOOGLE"],
+    "aws_cognito_social_providers": [
+        "FACEBOOK",
+        "GOOGLE"
+    ],
     "aws_cognito_signup_attributes": [
         "EMAIL"
     ],
@@ -31,8 +41,7 @@ const awsmobile = {
     },
     "aws_cognito_verification_mechanisms": [
         "EMAIL"
-    ],
-    "authenticationFlowType": "USER_PASSWORD_AUTH"
+    ]
 };
 
 

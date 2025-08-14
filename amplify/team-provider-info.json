@@ -13,7 +13,23 @@
     },
     "categories": {
       "auth": {
-        "receiptpal22631e3a": {}
+        "receiptpal22631e3a": {
+          "facebookAppId": "723920797115080",
+          "googleClientId": "1045287551003-vppao07aoesmb9e46nml847rgl2aqs3p.apps.googleusercontent.com"
+        }
+      },
+      "function": {
+        "receiptpal22631e3aCustomMessage": {
+          "REDIRECTURL": "https://main.d3iynbxrksi5iq.amplifyapp.com/confirm/",
+          "EMAILSUBJECT": "",
+          "EMAILMESSAGE": ""
+        },
+        "receiptpal22631e3aPostConfirmation": {
+          "GROUP": ""
+        },
+        "receiptpal22631e3aPreSignup": {
+          "DOMAINALLOWLIST": ""
+        }
       }
     }
   }

@@ -70,7 +70,6 @@ export default function Upload() {
     setErrorMsg(null);
 
     try {
-      // Send raw bytes (Blob) with a precise content-type to match Lambda parser
       const res = await fetch(API_URL, {
         method: "POST",
         headers: {

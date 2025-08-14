@@ -4,6 +4,7 @@ import Register from "./auth/Register";
 import Login from "./auth/Login";
 import ConfirmSignup from "./auth/ConfirmSignup";
 import Upload from "./pages/Upload";
+import Expenses from "./pages/Expenses";
 import About from "./pages/About";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Layout from "./components/Layout";

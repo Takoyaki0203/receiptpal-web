@@ -15,7 +15,10 @@
         "signupAttributes": [
           "EMAIL"
         ],
-        "socialProviders": [],
+        "socialProviders": [
+          "FACEBOOK",
+          "GOOGLE"
+        ],
         "usernameAttributes": [
           "EMAIL"
         ],
@@ -25,6 +28,64 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_auth_receiptpal22631e3a_facebookAppId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "receiptpal22631e3a"
+        }
+      ]
+    },
+    "AMPLIFY_auth_receiptpal22631e3a_googleClientId": {
+      "usedBy": [
+        {
+          "category": "auth",
+          "resourceName": "receiptpal22631e3a"
+        }
+      ]
+    },
+    "AMPLIFY_function_receiptpal22631e3aCustomMessage_EMAILMESSAGE": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "receiptpal22631e3aCustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_receiptpal22631e3aCustomMessage_EMAILSUBJECT": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "receiptpal22631e3aCustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_receiptpal22631e3aCustomMessage_REDIRECTURL": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "receiptpal22631e3aCustomMessage"
+        }
+      ]
+    },
+    "AMPLIFY_function_receiptpal22631e3aPostConfirmation_GROUP": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "receiptpal22631e3aPostConfirmation"
+        }
+      ]
+    },
+    "AMPLIFY_function_receiptpal22631e3aPreSignup_DOMAINALLOWLIST": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "receiptpal22631e3aPreSignup"
+        }
+      ]
     }
   }
 }
