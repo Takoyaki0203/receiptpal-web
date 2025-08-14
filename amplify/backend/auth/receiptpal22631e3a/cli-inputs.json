@@ -73,10 +73,10 @@
       "Google"
     ],
     "hostedUIProviderMeta": "[{\"ProviderName\":\"Facebook\",\"authorize_scopes\":\"email,public_profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"id\"}},{\"ProviderName\":\"Google\",\"authorize_scopes\":\"openid email profile\",\"AttributeMapping\":{\"email\":\"email\",\"username\":\"sub\"}}]",
-    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://main.d3iynbxrksi5iq.amplifyapp.com/upload/\"],\"LogoutURLs\":[\"https://main.d3iynbxrksi5iq.amplifyapp.com/\"]}",
     "parentStack": {
       "Ref": "AWS::StackId"
     },
-    "permissions": []
+    "permissions": [],
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"email\",\"openid\",\"profile\"],\"CallbackURLs\":[\"https://main.d3iynbxrksi5iq.amplifyapp.com/upload/\",\"http://localhost:3000/upload/\"],\"LogoutURLs\":[\"https://main.d3iynbxrksi5iq.amplifyapp.com/\",\"http://localhost:3000/\"]}"
   }
 }

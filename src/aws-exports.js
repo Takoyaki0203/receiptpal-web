@@ -10,14 +10,12 @@ const awsmobile = {
     "oauth": {
         "domain": "receiptpal-auth-2-main.auth.ap-southeast-2.amazoncognito.com",
         "scope": [
-            "phone",
             "email",
             "openid",
-            "profile",
-            "aws.cognito.signin.user.admin"
+            "profile"
         ],
-        "redirectSignIn": "https://main.d3iynbxrksi5iq.amplifyapp.com/upload/",
-        "redirectSignOut": "https://main.d3iynbxrksi5iq.amplifyapp.com/",
+        "redirectSignIn": "https://main.d3iynbxrksi5iq.amplifyapp.com/upload/,http://localhost:3000/upload/",
+        "redirectSignOut": "https://main.d3iynbxrksi5iq.amplifyapp.com/,http://localhost:3000/",
         "responseType": "code"
     },
     "federationTarget": "COGNITO_USER_AND_IDENTITY_POOLS",

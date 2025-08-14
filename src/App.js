@@ -12,7 +12,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 // (Optional) simple placeholders
 const Home = () => <div className="container mt-5"><h1>Welcome to Receipt Scanner</h1></div>;
-const Expenses = () => <div className="container mt-5"><h2>Expenses</h2></div>;
 
 function App() {
   return (
