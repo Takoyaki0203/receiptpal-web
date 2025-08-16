@@ -8,7 +8,6 @@ import logo from "../assets/logo.png";
 export default function Navbar() {
   const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const email = localStorage.getItem("userEmail") || "";

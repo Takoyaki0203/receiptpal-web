@@ -2,6 +2,7 @@ import '../styles/style.css';
 import { useEffect, useState, useRef } from 'react';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import ReceiptCard from "../components/ReceiptCard";
+import logo from '../assets/logo.png';
 const email = localStorage.getItem('userEmail') || '';
 
 const API_URL = "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/analyze-receipt"; 
@@ -20,29 +21,23 @@ export default function Upload() {
   useEffect(() => {
     (async () => {
       try {
-        const hasCode =
-          window.location.search.includes('code=') ||
-          window.location.hash.includes('code=');
+        const session = await fetchAuthSession(); // completes code->tokens if needed
+        const payload = session?.tokens?.idToken?.payload || {};
+        const who = payload.email || payload['cognito:username'] || 'user';
+        localStorage.setItem('userEmail', who);
+        localStorage.setItem('userName', who);
 
-        if (hasCode) {
-          // Only now do the exchange; you are coming back from Cognito
-          const session = await fetchAuthSession();
-          const payload = session?.tokens?.idToken?.payload || {};
-          const who = payload.email || payload['cognito:username'] || 'user';
-          localStorage.setItem('userEmail', who);
-          localStorage.setItem('userName', who);
-
-          // Clean ?code= from the bar
+        // Clean ?code= from the URL
+        if (window.location.search.includes('code=')) {
           window.history.replaceState({}, '', window.location.pathname);
-        } else {
-          // No code — ensure you are already signed in, otherwise bounce
-          await getCurrentUser(); // will throw if not signed in
         }
       } finally {
         setReady(true);
       }
     })();
   }, []);
+
+  if (!ready) return <div className="container mt-5">Signing you in…</div>;
 
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
