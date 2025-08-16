@@ -1,0 +1,51 @@
+/* Expenses page polish */
+.expense-shell .card {
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.06);
+  border: 0;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.stats-card {
+  background: rgba(255,255,255,0.9);
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+
+.kpi-label {
+  color: #2d7ff9;
+  font-weight: 600;
+  letter-spacing: .2px;
+  margin-bottom: 6px;
+}
+
+.kpi-value {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.kpi-sub {
+  color: #6b7280; /* muted */
+  font-size: 0.9rem;
+  margin-top: 6px;
+}
+
+.kpi-delta.positive { color: #16a34a; }
+.kpi-delta.negative { color: #dc2626; }
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 22px;
+}
+
+/* Make the heading breathe on large screens */
+.expense-shell h2 {
+  font-weight: 800;
+  letter-spacing: .2px;
+}

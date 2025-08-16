@@ -1,89 +1,120 @@
-import { useEffect, useState } from "react";
-import ReceiptCard from "../components/ReceiptCard"; // optional if you later show recent items
+// src/pages/Expenses.jsx
+import React, { useEffect, useMemo, useState } from "react";
+import { Line } from "react-chartjs-2";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip
-} from "recharts";
+  Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler, Legend
+} from "chart.js";
+import "../styles/expenses.css";
 
-const API_SUMMARY = "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/expenses-summary";
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler, Legend);
+
+const SUMMARY_API = "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/expenses-summary"; // <-- your summary lambda
+
+const getCurrencySymbol = () => localStorage.getItem("currencySymbol") || "$";
+const money = (v) => (v == null ? "—" : `${getCurrencySymbol()} ${Number(v).toFixed(2)}`);
+
+function pctChange(curr, prev) {
+  if (!prev) return null;
+  return ((Number(curr) - Number(prev)) / Number(prev)) * 100;
+}
+const monthLabel = (ym) => {
+  const [y, m] = ym.split("-").map(Number);
+  return new Date(y, m - 1, 1).toLocaleString(undefined, { month: "short" });
+};
 
 export default function Expenses() {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState(null);
+  const email = localStorage.getItem("userEmail") || "";
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail") || "";
-    fetch(API_SUMMARY, {
-      method: "GET",
-      headers: { "X-User-Email": email }
-    })
-      .then(async (r) => {
-        const txt = await r.text();
-        let data;
-        try { data = JSON.parse(txt); } catch { throw new Error(txt || `HTTP ${r.status}`); }
-        if (!r.ok || data.ok === false) throw new Error(data.error || `HTTP ${r.status}`);
+    (async () => {
+      setLoading(true); setErr(null);
+      try {
+        const res = await fetch(SUMMARY_API, { headers: { "X-User-Email": email } });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
         setSummary(data.summary);
-      })
-      .catch((e) => setErr(String(e.message || e)))
-      .finally(() => setLoading(false));
-  }, []);
+      } catch (e) { setErr(e.message); }
+      finally { setLoading(false); }
+    })();
+  }, [email]);
 
-  const fmtMoney = (v) => (v == null ? "—" : v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  const lastMonth = useMemo(() => {
+    const arr = summary?.monthly || [];
+    const curr = Number(arr.at(-1)?.total || 0);
+    const prev = Number(arr.at(-2)?.total || 0);
+    return { curr, prev, delta: pctChange(curr, prev) };
+  }, [summary]);
+
+  // Chart data with a soft fill
+  const chartData = useMemo(() => {
+    const labels = (summary?.monthly || []).map((m) => monthLabel(m.ym));
+    const values = (summary?.monthly || []).map((m) => Number(m.total || 0));
+    return {
+      labels,
+      datasets: [{
+        label: "Monthly Expense",
+        data: values,
+        tension: 0.35,
+        fill: true,
+        borderWidth: 2,
+        pointRadius: 3
+      }]
+    };
+  }, [summary]);
+
+  const chartOptions = {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { intersect: false } },
+    scales: {
+      y: { beginAtZero: true, ticks: { callback: (v) => `${getCurrencySymbol()} ${v}` } },
+      x: { grid: { display: false } }
+    }
+  };
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-4">Expenses</h2>
-
-      {loading && <div className="alert alert-info">Loading…</div>}
+    <div className="expense-shell container py-4">
+      <h2 className="mb-4">Expense Analysis</h2>
       {err && <div className="alert alert-danger">{err}</div>}
 
-      {summary && (
-        <>
-          {/* KPI cards */}
-          <div className="row g-3 mb-4">
-            <div className="col-12 col-md-6">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <div className="text-muted">Total (All time)</div>
-                  <div className="fs-2 fw-bold">${fmtMoney(summary.totalAllTime)}</div>
-                </div>
-              </div>
+      <div className="row g-4">
+        {/* Left: two stat cards stacked */}
+        <div className="col-lg-4">
+          <div className="stats-grid">
+            <div className="stats-card">
+              <div className="kpi-label">Total Expenses</div>
+              <div className="kpi-value">{money(summary?.totalAllTime)}</div>
+              <div className="kpi-sub">includes all receipts saved</div>
             </div>
-            <div className="col-12 col-md-6">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <div className="text-muted">This Month</div>
-                  <div className="fs-2 fw-bold">${fmtMoney(summary.totalThisMonth)}</div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Trend chart */}
-          <div className="card shadow-sm">
-            <div className="card-body">
-              <h5 className="mb-3">Monthly Expense Trend (last 12 months)</h5>
-              <div style={{ width: "100%", height: 300 }}>
-                <ResponsiveContainer>
-                  <AreaChart data={summary.monthly}>
-                    <defs>
-                      <linearGradient id="cFill" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopOpacity={0.4} />
-                        <stop offset="100%" stopOpacity={0.05} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="ym" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip formatter={(v) => `$${fmtMoney(v)}`} />
-                    <Area type="monotone" dataKey="total" strokeWidth={2} fill="url(#cFill)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="stats-card">
+              <div className="kpi-label">Expenses This Month</div>
+              <div className="kpi-value">{money(summary?.totalThisMonth)}</div>
+              {summary && (
+                <div className={`kpi-sub kpi-delta ${lastMonth.delta > 0 ? "negative" : "positive"}`}>
+                  {lastMonth.delta == null
+                    ? "no prior month to compare"
+                    : `${lastMonth.delta > 0 ? "▲" : "▼"} ${Math.abs(lastMonth.delta).toFixed(1)}% from last month`}
+                </div>
+              )}
             </div>
           </div>
-        </>
-      )}
+        </div>
+
+        {/* Right: chart panel */}
+        <div className="col-lg-8">
+          <div className="panel">
+            <div className="fw-semibold mb-3">Monthly Expense Trend</div>
+            {loading ? (
+              <div className="text-muted">Loading…</div>
+            ) : (
+              <Line data={chartData} options={chartOptions} height={80} />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

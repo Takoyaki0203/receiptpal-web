@@ -1,28 +1,15 @@
 // src/auth/Register.js
 import '../styles/style.css';
 import heroLeft from '../assets/background_2.jpg';
-import { useState, useEffect } from 'react';
-import { signUp, signInWithRedirect, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
+import { useState } from 'react';
+import { signUp, signOut } from 'aws-amplify/auth';
+import awsExports from '../aws-exports';
 
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const user = await getCurrentUser();
-        const session = await fetchAuthSession().catch(() => null);
-        const payload = session?.tokens?.idToken?.payload || {};
-        const who = payload.email || payload['cognito:username'] || user?.username || 'user';
-        localStorage.setItem('userEmail', who);
-        localStorage.setItem('userName', who);
-        window.location.href = '/upload';
-      } catch {}
-    })();
-  }, []);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -38,8 +25,30 @@ export default function Register() {
   };
 
   const handleGoogleRegister = async () => {
-    setMessage('Redirecting to Google…');
-    await signInWithRedirect({ provider: 'Google' });
+    try {
+      setMessage('Redirecting to Google…');
+      await signOut({ global: true }).catch(() => {});
+
+      const { oauth, aws_user_pools_web_client_id } = awsExports;
+      const redirects = oauth.redirectSignIn.split(',');
+      const redirectUri =
+        redirects.find(u => u.startsWith(window.location.origin)) ||
+        redirects.find(u => u.includes('localhost')) ||
+        redirects[0];
+
+      const url =
+        `https://${oauth.domain}/oauth2/authorize` +
+        `?identity_provider=Google` +
+        `&prompt=select_account` +
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_type=code` +
+        `&client_id=${aws_user_pools_web_client_id}` +
+        `&scope=${encodeURIComponent(oauth.scope.join(' '))}`;
+
+      window.location.assign(url);
+    } catch (err) {
+      setMessage(err.message || 'Google sign-up failed.');
+    }
   };
 
   return (

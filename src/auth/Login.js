@@ -2,13 +2,7 @@
 import '../styles/style.css';
 import logo from '../assets/logo.png';
 import { useState, useEffect } from 'react';
-import {
-  signIn,
-  signOut,
-  signInWithRedirect,
-  getCurrentUser,
-  fetchAuthSession
-} from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
 import awsExports from '../aws-exports';
 
 export default function Login() {
@@ -17,27 +11,17 @@ export default function Login() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    console.log('OAuth config at runtime:', awsExports.oauth);
-    
+    // if already signed in, go to /upload
     (async () => {
       try {
-        const user = await getCurrentUser(); // throws if not signed in
-        let storedEmail = user?.username || '';
-
-        try {
-          const session = await fetchAuthSession();
-          const payload = session?.tokens?.idToken?.payload || {};
-          storedEmail = payload.email || payload['cognito:username'] || storedEmail;
-        } catch {
-          /* ignore */
-        }
-
-        localStorage.setItem('userEmail', storedEmail || 'user');
-        localStorage.setItem('userName', storedEmail || 'User');
+        const user = await getCurrentUser();
+        const session = await fetchAuthSession();
+        const payload = session?.tokens?.idToken?.payload || {};
+        const who = payload.email || payload['cognito:username'] || user?.username || 'user';
+        localStorage.setItem('userEmail', who);
+        localStorage.setItem('userName', who);
         window.location.href = '/upload';
-      } catch {
-        // not signed in yet
-      }
+      } catch {}
     })();
   }, []);
 
@@ -59,13 +43,30 @@ export default function Login() {
   const handleGoogle = async () => {
     try {
       setMessage('Redirecting to Google…');
-      await signInWithRedirect({ provider: 'Google' });
-      // After redirect back, useEffect above will run and route to /upload.
+      await signOut({ global: true }).catch(() => {}); // ensure no residual session
+
+      const { oauth, aws_user_pools_web_client_id } = awsExports;
+      const redirects = oauth.redirectSignIn.split(',');
+      const redirectUri =
+        redirects.find(u => u.startsWith(window.location.origin)) ||
+        redirects.find(u => u.includes('localhost')) ||
+        redirects[0];
+
+      const url =
+        `https://${oauth.domain}/oauth2/authorize` +
+        `?identity_provider=Google` +
+        `&prompt=select_account` +                     // <-- always show chooser
+        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+        `&response_type=code` +
+        `&client_id=${aws_user_pools_web_client_id}` +
+        `&scope=${encodeURIComponent(oauth.scope.join(' '))}`;
+
+      window.location.assign(url);
     } catch (err) {
-      console.error('Google sign-in error:', err);
       setMessage(err.message || 'Google sign-in failed.');
     }
   };
+
 
   return (
     <div className="card-wrapper">

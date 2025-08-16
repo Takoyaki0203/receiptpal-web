@@ -1,6 +1,8 @@
 // src/components/Navbar.js
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { signOut } from 'aws-amplify/auth';
+import awsExports from '../aws-exports';
 import logo from "../assets/logo.png";
 
 export default function Navbar() {
@@ -15,9 +17,27 @@ export default function Navbar() {
     setUserName(name);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // end local Cognito session (and provider session when possible)
+      await signOut({ global: true });
+    } catch (_) {}
+
+    const { oauth, aws_user_pools_web_client_id } = awsExports;
+
+    // pick a sign-out redirect that matches this origin
+    const signOutUrls = oauth.redirectSignOut.split(',');
+    const redirectUri =
+      signOutUrls.find(u => u.startsWith(window.location.origin)) ||
+      signOutUrls.find(u => u.includes('localhost')) ||
+      signOutUrls[0];
+
+    const url =
+      `https://${oauth.domain}/logout` +
+      `?client_id=${encodeURIComponent(aws_user_pools_web_client_id)}` + // <-- real client id
+      `&logout_uri=${encodeURIComponent(redirectUri)}`;
+
+    window.location.assign(url);
   };
 
   const linkClass = ({ isActive }) =>
@@ -25,22 +45,10 @@ export default function Navbar() {
 
   return (
     <nav className="navbar navbar-expand-lg shadow-sm">
-      <div className="container-fluid">
+      <div className="container justify-content-center">
         <NavLink className="navbar-brand" to="/">
           <img src={logo} alt="Logo" width="120" />
         </NavLink>
-
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarContent"
-          aria-controls="navbarContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon" />
-        </button>
 
         <div className="collapse navbar-collapse justify-content-between" id="navbarContent">
           <ul className="navbar-nav mx-auto">
