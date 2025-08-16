@@ -1,26 +1,29 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 export default function ProtectedRoute({ children }) {
   const [state, setState] = useState({ loading: true, ok: false });
   const location = useLocation();
 
-  const hasOAuthCode =
-    location.search.includes('code=') || location.hash.includes('code=');
-
   useEffect(() => {
     (async () => {
-      try {
-        await getCurrentUser();
+      // Let the OAuth callback (/upload?code=...) render so it can finish login.
+      if (location.search.includes('code=')) {
         setState({ loading: false, ok: true });
+        return;
+      }
+
+      try {
+        const session = await fetchAuthSession();
+        const hasIdToken = !!session?.tokens?.idToken;
+        setState({ loading: false, ok: hasIdToken });
       } catch {
         setState({ loading: false, ok: false });
       }
     })();
-  }, []);
+  }, [location.search]);
 
   if (state.loading) return <div className="container mt-5">Checking session…</div>;
-  if (state.ok || hasOAuthCode) return children;  // let /upload mount to complete login
-  return <Navigate to="/login" />;
+  return state.ok ? children : <Navigate to="/login" />;
 }

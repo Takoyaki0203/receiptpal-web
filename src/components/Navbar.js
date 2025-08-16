@@ -17,28 +17,35 @@ export default function Navbar() {
     setUserName(name);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      // end local Cognito session (and provider session when possible)
-      await signOut({ global: true });
-    } catch (_) {}
+const handleLogout = async () => {
+  try {
+    // End the local Cognito session (revokes tokens)
+    await signOut({ global: true });
+  } catch (_) {}
 
-    const { oauth, aws_user_pools_web_client_id } = awsExports;
+  const { oauth, aws_user_pools_web_client_id } = awsExports;
 
-    // pick a sign-out redirect that matches this origin
-    const signOutUrls = oauth.redirectSignOut.split(',');
-    const redirectUri =
-      signOutUrls.find(u => u.startsWith(window.location.origin)) ||
-      signOutUrls.find(u => u.includes('localhost')) ||
-      signOutUrls[0];
+  // Pick a sign-out redirect that matches this origin
+  const signOutUrls = oauth.redirectSignOut.split(',');
+  const redirectUri =
+    signOutUrls.find(u => u.startsWith(window.location.origin)) ||
+    signOutUrls.find(u => u.includes('localhost')) ||
+    signOutUrls[0];
 
-    const url =
-      `https://${oauth.domain}/logout` +
-      `?client_id=${encodeURIComponent(aws_user_pools_web_client_id)}` + // <-- real client id
-      `&logout_uri=${encodeURIComponent(redirectUri)}`;
+  // IMPORTANT: use /logout endpoint
+  const url =
+    `https://${oauth.domain}/logout` +
+    `?client_id=${encodeURIComponent(aws_user_pools_web_client_id)}` +
+    `&logout_uri=${encodeURIComponent(redirectUri)}`;
 
-    window.location.assign(url);
-  };
+  // clear any UI state cached locally
+  try {
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+  } catch {}
+
+  window.location.assign(url);
+};
 
   const linkClass = ({ isActive }) =>
     "nav-link fw-semibold px-3" + (isActive ? " active" : "");
