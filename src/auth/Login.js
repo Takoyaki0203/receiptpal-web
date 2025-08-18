@@ -2,8 +2,9 @@
 import '../styles/style.css';
 import logo from '../assets/logo.png';
 import { useState, useEffect } from 'react';
-import { signIn, signOut, getCurrentUser, fetchAuthSession } from 'aws-amplify/auth';
+import { signIn, signOut, getCurrentUser, fetchAuthSession, resetPassword } from 'aws-amplify/auth';
 import awsExports from '../aws-exports';
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -66,7 +67,13 @@ export default function Login() {
       setMessage(err.message || 'Google sign-in failed.');
     }
   };
-
+  
+  const navigate = useNavigate();
+  const handleForgotPassword = () => {
+    // Optionally prefill if user already typed their email
+    const q = email ? `?email=${encodeURIComponent(email)}` : "";
+    navigate(`/reset${q}`);
+  };
 
   return (
     <div className="card-wrapper">
@@ -107,6 +114,16 @@ export default function Login() {
                     required
                   />
                   <i className="fa-solid fa-eye" />
+                </div>
+
+                <div className="text-end mb-2">
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 small"
+                    onClick={handleForgotPassword}
+                  >
+                    Forgot your password?
+                  </button>
                 </div>
 
                 <button className="btn-primary">Sign In</button>

@@ -1,51 +1,95 @@
-/* Expenses page polish */
-.expense-shell .card {
-  border-radius: 16px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
-  border: 0;
+/* ===== Dashboard Look & Feel ===== */
+:root{
+  --bg: #f5f9ff;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --brand: #2563eb;
+  --surface: #ffffff;
+  --ring: rgba(37,99,235,.14);
 }
 
-.stats-grid {
+body {
+  background:
+    radial-gradient(1200px 600px at 85% 5%, #dceaff 0%, rgba(220,234,255,0) 60%) no-repeat,
+    var(--bg);
+  color: var(--ink);
+}
+
+/* Layout */
+.page-wrap{ max-width: 1140px; margin: 24px auto; padding: 0 16px; }
+.section{ margin-bottom: 18px; }
+
+/* Cards */
+.card-elevated{
+  background: var(--surface);
+  border: 1px solid rgba(2,6,23,.05);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 2px rgba(2,6,23,.06),
+    0 10px 24px rgba(2,6,23,.06);
+}
+
+/* KPI row */
+.kpi-grid{
   display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
   gap: 16px;
 }
+.kpi{
+  padding: 16px 18px;
+}
+.kpi .label{ color: var(--muted); font-weight: 700; font-size: 12px; letter-spacing:.02em; }
+.kpi .value{ font-size: 24px; font-weight: 800; letter-spacing: -.02em; margin-top: 6px; }
 
-.stats-card {
-  background: rgba(255,255,255,0.9);
-  border-radius: 16px;
-  padding: 20px 22px;
+/* Charts grid */
+.charts-grid{
+  display: grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 16px;
+}
+.chart-card .head{
+  color: var(--muted); font-weight: 700; font-size: 12px; padding: 14px 16px 0;
+}
+.chart-body{ padding: 12px 16px 18px; height: 340px; }
+
+/* Donut legend */
+.legend{
+  display:flex; flex-direction:column; gap:8px;
+  padding: 0 16px 16px; font-size:12px; color: var(--muted);
+}
+.legend-row{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; width:100%;
+}
+.legend-left{ display:flex; align-items:center; gap:8px; min-width:0; }
+.legend-swatch{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+.legend-name{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.legend-amount{ color: var(--ink); font-weight:700; }
+
+/* Recent table */
+.table-card{ padding: 14px 16px; }
+.table-card .title{ color: var(--muted); font-weight:700; font-size:12px; margin-bottom:8px; }
+.table-modern{
+  width:100%; border-collapse:separate; border-spacing:0 8px;
+}
+.table-modern thead th{
+  color: var(--muted); font-size:12px; font-weight:700; text-transform:none; border:none;
+}
+.table-modern tbody tr{
+  background: #fff; border: 1px solid rgba(2,6,23,.05);
+  box-shadow: 0 1px 2px rgba(2,6,23,.04);
+}
+.table-modern td{ padding: 10px 12px; }
+.badge-soft{
+  background: #f1f5f9; color:#0f172a; border-radius: 999px; padding: 3px 8px; font-size: 12px; font-weight: 700;
+}
+.badge-warn{
+  background: #fff7ed; color:#9a3412; border:1px solid #fdba74;
 }
 
-.kpi-label {
-  color: #2d7ff9;
-  font-weight: 600;
-  letter-spacing: .2px;
-  margin-bottom: 6px;
+/* “Needs review” */
+.notice{
+  background: #fff7ed; border:1px solid #fdba74; color:#9a3412;
+  border-radius: 10px; padding: 8px 12px; font-size: 14px; display:inline-block;
 }
 
-.kpi-value {
-  font-size: 40px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.kpi-sub {
-  color: #6b7280; /* muted */
-  font-size: 0.9rem;
-  margin-top: 6px;
-}
-
-.kpi-delta.positive { color: #16a34a; }
-.kpi-delta.negative { color: #dc2626; }
-
-.panel {
-  background: #fff;
-  border-radius: 16px;
-  padding: 20px 22px;
-}
-
-/* Make the heading breathe on large screens */
-.expense-shell h2 {
-  font-weight: 800;
-  letter-spacing: .2px;
-}

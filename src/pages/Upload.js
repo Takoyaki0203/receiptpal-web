@@ -2,7 +2,6 @@ import '../styles/style.css';
 import { useEffect, useState, useRef } from 'react';
 import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import ReceiptCard from "../components/ReceiptCard";
-import logo from '../assets/logo.png';
 const email = localStorage.getItem('userEmail') || '';
 
 const API_URL = "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/analyze-receipt"; 

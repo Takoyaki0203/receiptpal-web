@@ -245,6 +245,52 @@ body, html {
   background-color: #d32f2f;
 }
 
+/* Auth buttons on the right */
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;                 /* space between Login and Sign up */
+}
+
+/* Plain text "Login" link */
+.btn-login-link {
+  font-weight: 600;
+  color: #111;               /* near-black like your screenshot */
+  text-decoration: none;
+  padding: 6px 0;            /* vertical rhythm */
+}
+.btn-login-link:hover,
+.btn-login-link:focus {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* Red pill "Sign up" button */
+.btn-signup-pill {
+  display: inline-block;
+  background: #e53935;       /* red */
+  color: #fff;
+  font-weight: 700;
+  padding: 10px 14px;         /* pill size */
+  border-radius: 9999px;     /* full pill */
+  text-decoration: none;
+  border: none;
+  line-height: 1.2;
+}
+.btn-signup-pill:hover,
+.btn-signup-pill:focus {
+  background: #d32f2f;       /* slightly darker on hover */
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Optional: align with navbar height on small screens */
+@media (max-width: 991.98px) {
+  .nav-auth {
+    margin-top: 8px;
+  }
+}
+
 .card {
   max-width: 700px;
   width: 80%;

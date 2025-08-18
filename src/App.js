@@ -2,16 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
 import ConfirmSignup from "./auth/ConfirmSignup";
+import ResetPassword from "./auth/ResetPassword.js"; 
+import Home from "./pages/Home.jsx";
 import Upload from "./pages/Upload";
 import Expenses from "./pages/Expenses";
 import About from "./pages/About";
+import AccountSettings from "./pages/AccountSettings.jsx";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Layout from "./components/Layout";
 import "bootstrap/dist/css/bootstrap.min.css";
-
-const Home = () => (
-  <div className="container mt-5"><h1>Welcome to Receipt Scanner</h1></div>
-);
 
 export default function App() {
   return (
@@ -22,6 +21,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/confirm" element={<ConfirmSignup />} />
+          <Route path="/reset" element={<ResetPassword />} />
 
           {/* Public pages */}
           <Route path="/" element={<Layout><Home /></Layout>} />
@@ -35,6 +35,10 @@ export default function App() {
           <Route
             path="/upload"
             element={<ProtectedRoute><Layout><Upload /></Layout></ProtectedRoute>}
+          />
+          <Route
+            path='/settings'
+            element={<ProtectedRoute><Layout><AccountSettings/></Layout></ProtectedRoute>}
           />
         </Routes>
       </Router>

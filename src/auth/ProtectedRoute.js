@@ -1,42 +1,36 @@
-// src/auth/ProtectedRoute.js
-import { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { fetchAuthSession } from 'aws-amplify/auth';
+import { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
+import { fetchAuthSession } from "aws-amplify/auth";
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 export default function ProtectedRoute({ children }) {
-  const location = useLocation();
-  const [state, setState] = useState({ loading: true, ok: false });
+  const [checking, setChecking] = useState(true);
+  const [ok, setOk] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
-
-    const decide = async () => {
-      // If we’re returning from Cognito (?code=...), let the page mount.
-      if (location.search.includes('code=')) {
-        if (!cancelled) setState({ loading: false, ok: true });
-        return;
-      }
-
-      // Try a few short times in case hydration is still happening
-      for (let i = 0; i < 8; i++) { // ~1.2s total
-        try {
-          const session = await fetchAuthSession();
-          if (session?.tokens?.idToken) {
-            if (!cancelled) setState({ loading: false, ok: true });
-            return;
+    let alive = true;
+    (async () => {
+      try {
+        // Try multiple times in case Amplify is still hydrating
+        for (let i = 0; i < 8; i++) {
+          const s = await fetchAuthSession();
+          const authed = !!(s?.tokens?.idToken || s?.tokens?.accessToken);
+          console.log("PR check", i, authed); // <- debugging line
+          if (authed) {
+            if (alive) setOk(true);
+            break;
           }
-        } catch { /* ignore; retry */ }
-        await sleep(150);
+          await sleep(300);
+        }
+      } finally {
+        if (alive) setChecking(false);
       }
+    })();
+    return () => { alive = false; };
+  }, []);
 
-      if (!cancelled) setState({ loading: false, ok: false });
-    };
-
-    decide();
-    return () => { cancelled = true; };
-  }, [location.search]);
-
-  if (state.loading) return <div className="container mt-5">Checking session…</div>;
-  return state.ok ? children : <Navigate to="/login" replace />;
+  if (checking) return null; // or a spinner
+  if (!ok) return <Navigate to="/login" replace />;
+  return children;
 }
