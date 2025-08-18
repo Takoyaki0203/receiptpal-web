@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Register from "./auth/Register";
-import Login from "./auth/Login";
-import ConfirmSignup from "./auth/ConfirmSignup";
+import Register from "./auth/Register.js";
+import Login from "./auth/Login.js";
+import ConfirmSignup from "./auth/ConfirmSignup.js";
 import ResetPassword from "./auth/ResetPassword.js"; 
 import Home from "./pages/Home.jsx";
-import Upload from "./pages/Upload";
-import Expenses from "./pages/Expenses";
-import About from "./pages/About";
+import Upload from "./pages/Upload.js";
+import Expenses from "./pages/Expenses.jsx";
+import About from "./pages/About.js";
 import AccountSettings from "./pages/AccountSettings.jsx";
-import ProtectedRoute from "./auth/ProtectedRoute";
-import Layout from "./components/Layout";
+import ProtectedRoute from "./auth/ProtectedRoute.js";
+import Layout from "./components/Layout.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function App() {

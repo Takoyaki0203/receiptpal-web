@@ -72,10 +72,6 @@ useEffect(() => {
         <div className="col-12 col-lg-6">
           <ProfileCard profile={profile} setProfile={setProfile} setSaving={setSaving} />
         </div>
-
-        <div className="col-12">
-          <PrivacyDataCard setSaving={setSaving} />
-        </div>
       </div>
       {busy && (
         <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 1050 }}>
@@ -373,54 +369,6 @@ function ProfileCard({ profile, setProfile, setSaving }) {
         <div className="col-12">
           <button className="btn btn-primary" onClick={onSave}>Save profile</button>
         </div>
-      </div>
-    </Card>
-  );
-}
-
-function PrivacyDataCard({ setSaving }) {
-  const [busy, setBusy] = useState(false);
-
-  const exportData = async () => {
-    setBusy(true);
-    setSaving((s) => ({ ...s, export: true }));
-    try {
-      const headers = await getAuthHeader();
-      const res = await fetch(`${API_BASE}/me/export`, { method: "POST", headers });
-      if (!res.ok) throw new Error("Export failed");
-      alert("Export requested. Check your email for download link.");
-    } catch (e) {
-      alert(e.message || "Failed to start export");
-    } finally {
-      setBusy(false);
-      setSaving((s) => ({ ...s, export: false }));
-    }
-  };
-
-  const deleteAccount = async () => {
-    const sure = prompt("Type DELETE to confirm account deletion. This cannot be undone.");
-    if (sure !== "DELETE") return;
-    setSaving((s) => ({ ...s, delete: true }));
-    try {
-      const headers = await getAuthHeader();
-      const res = await fetch(`${API_BASE}/me`, { method: "DELETE", headers });
-      if (!res.ok) throw new Error("Delete failed");
-      alert("Account scheduled for deletion.");
-      // Optionally signOut here
-      // await signOut();
-      window.location.href = "/";
-    } catch (e) {
-      alert(e.message || "Failed to delete account");
-    } finally {
-      setSaving((s) => ({ ...s, delete: false }));
-    }
-  };
-
-  return (
-    <Card title="Privacy & Data" subtitle="Export or delete your data">
-      <div className="d-flex flex-wrap gap-2">
-        <button className="btn btn-outline-primary" onClick={exportData} disabled={busy}>Export my data</button>
-        <button className="btn btn-outline-danger" onClick={deleteAccount}>Delete my account</button>
       </div>
     </Card>
   );
