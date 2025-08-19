@@ -220,7 +220,7 @@ body, html {
 }
 
 .navbar-nav .nav-item {
-  margin: 0 0.5rem; /* Increase space between links */
+  margin: 0 0.5rem;
 }
 
 .navbar .nav-link {
@@ -245,19 +245,17 @@ body, html {
   background-color: #d32f2f;
 }
 
-/* Auth buttons on the right */
 .nav-auth {
   display: flex;
   align-items: center;
-  gap: 10px;                 /* space between Login and Sign up */
+  gap: 10px;              
 }
 
-/* Plain text "Login" link */
 .btn-login-link {
   font-weight: 600;
-  color: #111;               /* near-black like your screenshot */
+  color: #111;            
   text-decoration: none;
-  padding: 6px 0;            /* vertical rhythm */
+  padding: 6px 0;           
 }
 .btn-login-link:hover,
 .btn-login-link:focus {
@@ -265,26 +263,24 @@ body, html {
   text-decoration: underline;
 }
 
-/* Red pill "Sign up" button */
 .btn-signup-pill {
   display: inline-block;
-  background: #e53935;       /* red */
+  background: #e53935;     
   color: #fff;
   font-weight: 700;
-  padding: 10px 14px;         /* pill size */
-  border-radius: 9999px;     /* full pill */
+  padding: 10px 14px;   
+  border-radius: 9999px;     
   text-decoration: none;
   border: none;
   line-height: 1.2;
 }
 .btn-signup-pill:hover,
 .btn-signup-pill:focus {
-  background: #d32f2f;       /* slightly darker on hover */
+  background: #d32f2f;      
   color: #fff;
   text-decoration: none;
 }
 
-/* Optional: align with navbar height on small screens */
 @media (max-width: 991.98px) {
   .nav-auth {
     margin-top: 8px;
@@ -394,24 +390,76 @@ footer {
   padding: 1rem 0;
 }
 
-/* Sizing + styling for the round photo */
 .avatar-xl {
-  width: 180px;         /* tweak 160–200 to taste */
+  width: 180px;       
   height: 180px;
   object-fit: cover;
   border: 4px solid rgba(255, 255, 255, 0.85);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
-/* Make sure text color has enough contrast on your background */
 .team-section h2,
 .team-section h3 {
   color: #0b1220;
 }
 
-/* Reset Bootstrap behavior inside Meet the Team */
 .team-section .container {
   display: block !important;
   height: auto !important;
   flex: initial !important;
 }
+
+.profile-card {
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+/* Card sections */
+.profile-card .card-body {
+  padding: 24px;
+}
+
+.profile-main {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 24px;
+}
+@media (max-width: 576px){
+  .profile-main { grid-template-columns: 1fr; }
+}
+
+/* Avatar */
+.avatar-uploader{
+  width: 168px;     
+  height: 168px;
+  border-radius: 50%;
+  border: 4px solid #fff;
+  background:#f3f4f6;
+  box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  overflow:hidden;
+}
+
+.profile-header {
+  height: 110px;
+  background: radial-gradient(1200px 300px at 10% -20%, #e6f0ff, transparent 60%),
+              radial-gradient(1200px 300px at 110% 120%, #e6f0ff, transparent 60%),
+              linear-gradient(135deg,#f8fbff,#f3f7ff);
+}
+
+.input-group-modern .form-control { height: 44px; }
+.input-group-modern .input-group-text{
+  height: 44px;
+  background:#f8fafc;
+  border-right: 0;
+  color:#64748b;
+}
+.input-group-modern .form-control{ border-left: 0; }
+.btn-44{ height:44px; display:inline-flex; align-items:center; }
+
+.row-flex { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+.row-flex > .grow { flex:1 1 260px; min-width: 220px; }

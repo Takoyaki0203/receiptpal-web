@@ -48,7 +48,7 @@ export default function ResetPassword() {
 
   return (
     <div className="reset-shell">
-      {/* LEFT: form column */}
+      {/* form column */}
       <div className="reset-left">
         <div className="reset-card">
           <div className="auth-logo">
@@ -57,7 +57,7 @@ export default function ResetPassword() {
           <h1 className="reset-title">Reset your password</h1>
           <p className="reset-sub">Enter your email and check your inbox for instructions.</p>
 
-          {/* STEP 1: request code (screenshot layout) */}
+          {/* request code (screenshot layout) */}
           {stage === "request" && (
             <>
               <div className="reset-input">
@@ -81,7 +81,7 @@ export default function ResetPassword() {
             </>
           )}
 
-          {/* STEP 2: confirm code + new password */}
+          {/* confirm code + new password */}
           {stage === "confirm" && (
             <>
               <label className="reset-label">Verification code</label>

@@ -87,7 +87,6 @@ export default function Home() {
   );
 }
 
-/* inline styles reused from your HTML’s CSS */
 const cardStyle = {
   background: "#fff",
   borderRadius: 12,

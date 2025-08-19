@@ -6,13 +6,16 @@ import awsExports from "../aws-exports";
 import logo from "../assets/logo.png";
 
 export default function Navbar() {
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [userName, setUserName] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    const storedAvatar = localStorage.getItem("avatarUrl") || "";
     const email = localStorage.getItem("userEmail") || "";
     const name = localStorage.getItem("userName") || "";
+    setAvatarUrl(storedAvatar)
     setUserEmail(email);
     setUserName(name);
   }, []);
@@ -89,13 +92,23 @@ export default function Navbar() {
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <img
-                  src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
-                  alt="user"
-                  width="32"
-                  height="32"
-                  className="rounded-circle"
-                />
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt="user"
+                    width="42"
+                    height="42"
+                    className="rounded-circle"
+                  />
+                ) : (
+                  <img
+                    src="https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                    alt="user"
+                    width="42"
+                    height="42"
+                    className="rounded-circle"
+                  />
+                )}
               </a>
               <ul className="dropdown-menu dropdown-menu-end text-small" aria-labelledby="dropdownUser">
                 <li className="profile-info px-3">

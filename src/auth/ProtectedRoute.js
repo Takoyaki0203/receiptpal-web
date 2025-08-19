@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children }) {
         for (let i = 0; i < 8; i++) {
           const s = await fetchAuthSession();
           const authed = !!(s?.tokens?.idToken || s?.tokens?.accessToken);
-          console.log("PR check", i, authed); // <- debugging line
+          console.log("PR check", i, authed);
           if (authed) {
             if (alive) setOk(true);
             break;
@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children }) {
     return () => { alive = false; };
   }, []);
 
-  if (checking) return null; // or a spinner
+  if (checking) return null;
   if (!ok) return <Navigate to="/login" replace />;
   return children;
 }

@@ -1,7 +1,7 @@
+import '../styles/style.css';
 import { useEffect, useMemo, useState } from "react";
 import { fetchAuthSession, getCurrentUser, updateUserAttributes, confirmUserAttribute } from "aws-amplify/auth";
 
-// Optional: if you keep a central util, you can delete this and import it from there
 async function getAuthHeader() {
   const s = await fetchAuthSession();
   const token = s?.tokens?.idToken?.toString() || s?.tokens?.accessToken?.toString();
@@ -45,7 +45,7 @@ useEffect(() => {
         if (data?.expenseCfg) setExpenseCfg((e) => ({ ...e, ...data.expenseCfg }));
       }
 
-      // 👇 Grab Cognito user + email
+      // Grab Cognito user + email
       const me = await getCurrentUser();
       setUser(me);
 
@@ -68,8 +68,8 @@ useEffect(() => {
   return (
     <div className="container py-4">
       <h1 className="h3 mb-4">Account Settings</h1>
-      <div className="row g-4">
-        <div className="col-12 col-lg-6">
+      <div className="d-flex justify-content-center">
+        <div className="w-100" style={{ maxWidth: "760px" }}>
           <ProfileCard profile={profile} setProfile={setProfile} setSaving={setSaving} />
         </div>
       </div>
@@ -86,39 +86,27 @@ useEffect(() => {
   );
 }
 
-function Card({ title, subtitle, children, footer, className = "" }) {
-  return (
-    <div className={`card shadow-sm border-0 rounded-3 ${className}`}>
-      <div className="card-body">
-        <div className="d-flex justify-content-between align-items-start mb-3">
-          <div>
-            <h2 className="h5 m-0">{title}</h2>
-            {subtitle && <div className="text-muted small">{subtitle}</div>}
-          </div>
-        </div>
-        {children}
-      </div>
-      {footer && <div className="card-footer bg-white border-0 pt-0">{footer}</div>}
-    </div>
-  );
-}
-
 function ProfileCard({ profile, setProfile, setSaving }) {
   const [form, setForm] = useState({
     firstName: profile.firstName || "",
     lastName: profile.lastName || "",
     email: profile.email || "",
-    avatarUrl: profile.avatarUrl || ""
+    avatarUrl: profile.avatarUrl || "",
+    email_verified: !!profile.email_verified,
   });
   const [avatarFile, setAvatarFile] = useState(null);
   const [preview, setPreview] = useState(profile.avatarUrl || "");
-
+  const [emailEdit, setEmailEdit] = useState(false);
+  const [emailNew, setEmailNew] = useState(profile.email || "");
+  const [emailCode, setEmailCode] = useState("");
+  const [emailStage, setEmailStage] = useState("idle");
   useEffect(() => {
     setForm({
       firstName: profile.firstName || "",
       lastName: profile.lastName || "",
       email: profile.email || "",
-      avatarUrl: profile.avatarUrl || ""
+      avatarUrl: profile.avatarUrl || "",
+      email_verified: !!profile.email_verified,
     });
     setPreview(profile.avatarUrl || "");
     setAvatarFile(null);
@@ -131,22 +119,23 @@ function ProfileCard({ profile, setProfile, setSaving }) {
     setPreview(URL.createObjectURL(f));
   };
 
-  const onSave = async () => {
+  async function onSave() {
     setSaving(s => ({ ...s, profile: true }));
     try {
-      const headers = await getAuthHeader();
-      if (!headers) throw new Error("Not authenticated");
+      // auth header
+      const s = await fetchAuthSession();
+      const token = s?.tokens?.idToken?.toString() || s?.tokens?.accessToken?.toString();
+      if (!token) throw new Error("Not authenticated");
+      const headers = { Authorization: token, "Content-Type": "application/json" };
 
+      // 1) If a new avatar chosen, get presigned URL and PUT to S3
       let avatarUrl = form.avatarUrl || "";
-
-      // If a new image was picked, get a presigned URL and upload straight to S3
       if (avatarFile) {
-        // 1) Ask backend for presigned PUT URL
         const pres = await fetch(
           "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/me/profile/avatar-url",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json", ...headers },
+            headers,
             body: JSON.stringify({ fileName: avatarFile.name, contentType: avatarFile.type })
           }
         );
@@ -155,22 +144,20 @@ function ProfileCard({ profile, setProfile, setSaving }) {
           throw new Error(pj?.error || "Failed to get upload URL");
         }
 
-        // 2) Upload file directly to S3 via presigned URL (DO NOT set Authorization here)
         await fetch(pj.uploadUrl, {
           method: "PUT",
           headers: { "Content-Type": avatarFile.type },
-          body: avatarFile
+          body: avatarFile,
         });
-
         avatarUrl = pj.publicUrl;
       }
 
-      // 3) Save first/last name + avatar URL
-      const save = await fetch(
+      // Save profile basics
+      const res = await fetch(
         "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/me/profile",
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json", ...headers },
+          headers,
           body: JSON.stringify({
             firstName: form.firstName.trim(),
             lastName: form.lastName.trim(),
@@ -178,198 +165,203 @@ function ProfileCard({ profile, setProfile, setSaving }) {
           })
         }
       );
-      if (!save.ok) {
-        const j = await save.json().catch(() => ({}));
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
         throw new Error(j?.error || "Failed to save profile");
       }
 
-      // Update local UI + navbar cache
+      // sync UI + cache for navbar
       const fullName = [form.firstName, form.lastName].filter(Boolean).join(" ").trim();
-      setProfile(p => ({ ...p, ...form, avatarUrl }));
+      setProfile((p) => ({ ...p, ...form, avatarUrl }));
       try {
         localStorage.setItem("userName", fullName || "User");
         localStorage.setItem("avatarUrl", avatarUrl || "");
       } catch {}
-      alert("Profile saved.");
+
+      // done
+      const okToast = document.getElementById("saveToast");
+      if (okToast) {
+        okToast.classList.add("show");
+        setTimeout(() => okToast.classList.remove("show"), 1600);
+      } else {
+        alert("Profile saved.");
+      }
     } catch (e) {
       alert(e.message || "Failed to save profile");
     } finally {
       setSaving(s => ({ ...s, profile: false }));
     }
-  };
+  }
 
-  // Email edit flow state
-  const [emailEdit, setEmailEdit] = useState(false);
-  const [emailNew, setEmailNew] = useState(form.email || "");
-  const [emailCode, setEmailCode] = useState("");
-  const [emailStage, setEmailStage] = useState("idle"); // 'idle' | 'code'
-
-  // Start email change: updates Cognito attribute and triggers a code to the new email
-  const startEmailChange = async () => {
+  // Email change flow
+  async function startEmailChange() {
     const newEmail = emailNew.trim();
     if (!newEmail || newEmail === form.email) return;
-
     try {
-      // Update email attribute in Cognito; this automatically sends a verification code
-      await updateUserAttributes({
-        userAttributes: { email: newEmail }
-      });
+      await updateUserAttributes({ userAttributes: { email: newEmail } });
       setEmailStage("code");
-      alert("We sent a verification code to your new email.");
+      // optional hint to the user
+      // alert("We sent a verification code to your new email.");
     } catch (e) {
       alert(e.message || "Failed to start email change");
     }
-  };
-
-  // Confirm the verification code to finalize the email change
-  const confirmEmail = async () => {
+  }
+  async function confirmEmail() {
     try {
       await confirmUserAttribute({
         userAttributeKey: "email",
-        confirmationCode: emailCode.trim()
+        confirmationCode: emailCode.trim(),
       });
 
-      // Update local UI state
-      setForm((f) => ({ ...f, email: emailNew, email_verified: true }));
+      // 🔑 get a fresh ID token that contains the NEW email
+      await fetchAuthSession({ forceRefresh: true });
+
+      // reload the prefs (optional but nice to keep backend + UI consistent)
+      try {
+        const s = await fetchAuthSession();
+        const token = s?.tokens?.idToken?.toString() || s?.tokens?.accessToken?.toString();
+        if (token) {
+          const r = await fetch(
+            "https://3qcsvv8w40.execute-api.ap-southeast-2.amazonaws.com/prod/me/preferences",
+            { headers: { Authorization: token } }
+          );
+          const j = await r.json().catch(() => ({}));
+          const newEmail = j?.profile?.email || emailNew.trim();
+
+          // update form + global profile
+          setForm((f) => ({ ...f, email: newEmail, email_verified: true }));
+          setProfile((p) => ({ ...p, email: newEmail, email_verified: true }));
+
+          // make other pages (navbar, upload, etc.) see it immediately
+          try { localStorage.setItem("userEmail", newEmail); } catch {}
+        }
+      } catch {}
+
+      // reset UI
       setEmailEdit(false);
       setEmailStage("idle");
       setEmailCode("");
-      alert("Your email has been verified and updated.");
     } catch (e) {
       alert(e.message || "Invalid or expired code");
     }
-  };
+  }
 
   return (
-    <Card title="Profile" subtitle="Your basic information">
-      <div className="row g-3">
-        {/* Avatar */}
-        <div className="col-12 d-flex align-items-center gap-3">
-          <label
-            htmlFor="avatarInput"
-            className="rounded-circle border"
-            style={{
-              width: 72,
-              height: 72,
-              overflow: "hidden",
-              background: "#f8f9fa",
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer"
-            }}
-          >
+    <div className="profile-card card border-0 shadow-sm overflow-hidden">
+      {/* Body */}
+      <div className="card-body p-4 p-md-5">
+        {/* Avatar + basic */}
+        <div className="d-flex flex-column flex-sm-row align-items-center gap-3 mb-4">
+          <label htmlFor="avatarInput" className="avatar-uploader">
             {preview ? (
-              <img
-                src={preview}
-                alt="avatar"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
+              <img src={preview} alt="avatar" className="w-100 h-100 object-fit-cover" />
             ) : (
               <span className="text-muted small">Add photo</span>
             )}
           </label>
-          <input
-            id="avatarInput"
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={pickImage}
-          />
-          {avatarFile && <div className="small text-muted">{avatarFile.name}</div>}
+          <input id="avatarInput" type="file" accept="image/*" hidden onChange={pickImage} />
+          <button className="btn btn-primary" onClick={onSave}>
+            Save changes
+          </button>
         </div>
 
-        {/* Names */}
-        <div className="col-12 col-md-6">
-          <label className="form-label">First Name</label>
-          <input
-            className="form-control"
-            value={form.firstName}
-            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-          />
-        </div>
-        <div className="col-12 col-md-6">
-          <label className="form-label">Last Name</label>
-          <input
-            className="form-control"
-            value={form.lastName}
-            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-          />
-        </div>
+        {/* Form */}
+        <div className="row g-3">
+          <div className="col-12 col-md-6">
+            <label className="form-label">First name</label>
+            <div className="input-group input-group-modern">
+              <span className="input-group-text"><i className="fa-regular fa-user" /></span>
+              <input
+                className="form-control"
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                placeholder="Your first name"
+              />
+            </div>
+          </div>
+          <div className="col-12 col-md-6">
+            <label className="form-label">Last name</label>
+            <div className="input-group input-group-modern">
+              <span className="input-group-text"><i className="fa-regular fa-user" /></span>
+              <input
+                className="form-control"
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+                placeholder="Your last name"
+              />
+            </div>
+          </div>
 
-        {/* Email (read-only) + verify */}
-        <div className="col-12">
-          <label className="form-label">Email</label>
+          {/* Email section */}
+          <div className="col-12">
+            <label className="form-label">Email</label>
 
-          {/* Read-only view */}
           {!emailEdit && (
-            <div className="d-flex gap-2">
-              <input className="form-control" value={form.email} disabled />
-              <div className="form-text">{form.email_verified ? "Verified" : "Not verified"}</div>
-              <button type="button" className="btn btn-outline-secondary" onClick={() => {
-                setEmailEdit(true);
-                setEmailNew(form.email || "");
-                setEmailStage("idle");
-                setEmailCode("");
-              }}>
+            <div className="d-flex flex-wrap gap-2 align-items-center">
+              <div className="input-group input-group-modern flex-grow-1">
+                <span className="input-group-text"><i className="fa-regular fa-envelope" /></span>
+                <input className="form-control" value={form.email} disabled />
+              </div>
+
+              <span className={`badge ${form.email_verified ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"}`}>
+                {form.email_verified ? "Verified" : "Not verified"}
+              </span>
+
+              <button type="button" className="btn btn-outline-secondary ms-auto btn-44"
+                      onClick={() => { setEmailEdit(true); setEmailNew(form.email || ""); setEmailStage("idle"); setEmailCode(""); }}>
                 Change
               </button>
             </div>
           )}
 
-          {/* Edit view */}
           {emailEdit && (
-            <>
-              <div className="d-flex gap-2 mb-2">
-                <input
-                  className="form-control"
-                  type="email"
-                  value={emailNew}
-                  onChange={(e) => setEmailNew(e.target.value)}
-                  placeholder="your-new-email@example.com"
-                />
+            <div className="d-flex flex-column gap-2">
+              <div className="d-flex gap-2 flex-wrap">
+                <div className="input-group input-group-modern flex-grow-1">
+                  <span className="input-group-text"><i className="fa-regular fa-envelope" /></span>
+                  <input className="form-control" type="email" value={emailNew}
+                        onChange={(e) => setEmailNew(e.target.value)} placeholder="your-new-email@example.com" />
+                </div>
+
                 {emailStage === "idle" && (
-                  <button type="button" className="btn btn-primary" onClick={startEmailChange}>
+                  <button type="button" className="btn btn-primary btn-44" onClick={startEmailChange}>
                     Send code
                   </button>
                 )}
-                <button type="button" className="btn btn-outline-secondary" onClick={() => {
-                  setEmailEdit(false);
-                  setEmailStage("idle");
-                  setEmailCode("");
-                  setEmailNew(form.email || "");
-                }}>
+                <button type="button" className="btn btn-outline-secondary btn-44"
+                        onClick={() => { setEmailEdit(false); setEmailStage("idle"); setEmailCode(""); setEmailNew(form.email || ""); }}>
                   Cancel
                 </button>
               </div>
 
-              {/* Code entry stage */}
               {emailStage === "code" && (
-                <div className="d-flex gap-2">
-                  <input
-                    className="form-control"
-                    value={emailCode}
-                    onChange={(e) => setEmailCode(e.target.value)}
-                    placeholder="Enter verification code"
-                  />
-                  <button type="button" className="btn btn-success" onClick={confirmEmail}>
-                    Confirm
-                  </button>
+                <div className="d-flex gap-2 flex-wrap">
+                  <div className="input-group input-group-modern flex-grow-1">
+                    <span className="input-group-text"><i className="fa-solid fa-key" /></span>
+                    <input className="form-control" value={emailCode} onChange={(e) => setEmailCode(e.target.value)}
+                          placeholder="Verification code" />
+                  </div>
+                  <button type="button" className="btn btn-success btn-44" onClick={confirmEmail}>Confirm</button>
                 </div>
               )}
-            </>
+            </div>
           )}
-
-          <div className="form-text">
-            {form.email_verified ? "Verified" : "Not verified"}
           </div>
         </div>
+      </div>
 
-
-        <div className="col-12">
-          <button className="btn btn-primary" onClick={onSave}>Save profile</button>
+      {/* subtle toast for "saved" */}
+      <div
+        id="saveToast"
+        className="toast align-items-center text-bg-dark position-absolute end-0 m-3"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="d-flex">
+          <div className="toast-body">Profile saved</div>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
+
